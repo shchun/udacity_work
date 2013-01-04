@@ -7,7 +7,7 @@ def get_all_node(graph):
 		allnode.add(edge[0])
 		allnode.add(edge[1])
 
-	return list(allnode)
+	return allnode
 
 def find_eulerian_tour(graph):
 	eulpath = []
@@ -15,35 +15,59 @@ def find_eulerian_tour(graph):
 	tour = []
 
 	allnode = get_all_node(graph)
-	print 'allnode = ', allnode
+	#print 'allnode = ', allnode
 
 	# make node - degree dictionary
 	degrees = get_degree(graph)
 
+	print 'degrees = ', degrees
 	# for each odd degree node
 	for node in allnode:
 		if degrees[node] % 2 == 1: # odd
 			odd_node.append(node)
 
-	print 'odd node = ',  odd_node		
+	#print 'odd node = ',  odd_node		
 	if len(odd_node) == 0: # all even degree node
-		return get_path_for_nodes(graph, allnode[0])
+		# if no odd degree -> make tour starting node_0
+		allnode_list = list(allnode)
+		return get_path_for_nodes(graph, allnode_list[0], allnode, allnode,[])
 	elif len(odd_node) == 2: # 2 odd degree node
-		return get_path_for_nodes(graph, odd_node[0])
-
-	else:
-		return None	
-		# if no odd degree -> exit
-
 		# if 2 odd degree -> make tour starting one of odd degreed node
-
+		return get_path_for_nodes(graph, odd_node[0])
+	else:
 		# if >2 odd degree -> None
-def get_path_for_nodes(tour, start):
-    """return the set of nodes reachable from
-    the first node in `tour`"""
+		return None	
+
+
+def get_path_for_nodes(tour, current, to_visit, alln, path):
+    a_path = []
+    
+    print 'get_path current=', current, ', to_visit = ', to_visit, ', path =', path
+    if to_visit !=  None and len(to_visit) == 0:
+	return path
+
+    # get adj nodes
+    adj = set([])
+    for t in tour:
+	if(t[0] == current):
+            adj.add(t[1])
+	
+	elif(t[1] == current):
+            adj.add(t[0])
+    for node in adj:
+	if to_visit != None:
+		to_visit.remove(node)
+		path.append(node)
+		a_path = get_path_for_nodes(tour, node, to_visit, alln, path)
+	if a_path != None and len(a_path) > 0:
+		return path
+
+
+    '''
     a = start
     nodes = set([a])
     explore = set([a])
+    p = [a]
     while len(explore) > 0:
         # see what other nodes we can reach
         b = explore.pop()
@@ -53,7 +77,10 @@ def get_path_for_nodes(tour, start):
                 continue
             nodes.add(node)
             explore.add(node)
-    return nodes
+            p.append(node)
+    #print '### get_path = ', p
+    return p
+    '''
 
 def get_degree(tour):
     degree = {}
@@ -129,7 +156,10 @@ def is_eulerian_tour(nodes, tour):
 
 def test():
 	#a_graph = [(1, 2), (2, 3), (3, 1)]
-	a_graph = [(1, 2), (2, 3), (3, 1), (3, 4)]
-	print find_eulerian_tour(a_graph)
+	a_graph = [(0, 1), (1, 5), (1, 7), (4, 5), (4, 8), (1, 6), (3, 7), (5, 9), (2, 4), (0, 4), (2, 5), (3, 6), (8, 9)]
+	#a_graph = [(1, 13), (1, 6), (6, 11), (3, 13), (8, 13), (0, 6), (8, 9),(5, 9), (2, 6), (6, 10), (7, 9), (1, 12), (4, 12), (5, 14), (0, 1), (2, 3), (4, 11), (6, 9), (7, 14), (10, 13)]
+	#a_graph = [(8, 16), (8, 18), (16, 17), (18, 19), (3, 17), (13, 17), (5, 13),(3, 4), (0, 18), (3, 14), (11, 14), (1, 8), (1, 9), (4, 12), (2, 19),(1, 10), (7, 9), (13, 15), (6, 12), (0, 1), (2, 11), (3, 18), (5, 6), (7, 15), (8, 13), (10, 17)]
+	#a_graph = [(1, 2), (2, 3), (3, 1), (3, 4)]
+	return find_eulerian_tour(a_graph)
     
-test()
+print test()
